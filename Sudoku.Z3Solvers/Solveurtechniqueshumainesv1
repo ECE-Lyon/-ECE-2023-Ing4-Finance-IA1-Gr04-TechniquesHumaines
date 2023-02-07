@@ -1,0 +1,143 @@
+using System;
+
+
+namespace Sudoku.Z3Solvers
+
+
+
+
+{
+    class Program
+    {
+        static int[,] grid = new int[9, 9];
+
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Enter the Sudoku grid values row by row, 0 for empty cells:");
+
+            for (int i = 0; i < 9; i++)
+            {
+                for (int j = 0; j < 9; j++)
+                {
+                    grid[i, j] = int.Parse(Console.ReadLine());
+                }
+            }
+
+            if (SolveSudoku())
+            {
+                Console.WriteLine("Sudoku solved successfully:");
+                PrintGrid();
+            }
+            else
+            {
+                Console.WriteLine("Unable to solve the Sudoku.");
+            }
+        }
+
+        static bool SolveSudoku()
+        {
+            int row = -1, col = -1;
+            bool isEmpty = true;
+
+            for (int i = 0; i < 9; i++)
+            {
+                for (int j = 0; j < 9; j++)
+                {
+                    if (grid[i, j] == 0)
+                    {
+                        row = i;
+                        col = j;
+                        isEmpty = false;
+                        break;
+                    }
+                }
+                if (!isEmpty)
+                {
+                    break;
+                }
+            }
+
+            if (isEmpty)
+            {
+                return true;
+            }
+
+            for (int num = 1; num <= 9; num++)
+            {
+                if (IsSafe(row, col, num))
+                {
+                    grid[row, col] = num;
+
+                    if (SolveSudoku())
+                    {
+                        return true;
+                    }
+
+                    grid[row, col] = 0;
+                }
+            }
+
+            return false;
+        }
+
+        static bool IsSafe(int row, int col, int num)
+        {
+            return !UsedInRow(row, num) &&
+                   !UsedInCol(col, num) &&
+                   !UsedInBox(row - row % 3, col - col % 3, num);
+        }
+
+        static bool UsedInRow(int row, int num)
+        {
+            for (int col = 0; col < 9; col++)
+            {
+                if (grid[row, col] == num)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        static bool UsedInCol(int col, int num)
+        {
+            for (int row = 0; row < 9; row++)
+            {
+                if (grid[row, col] == num)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        static bool UsedInBox(int boxStartRow, int boxStartCol, int num)
+        {
+            for (int row = 0; row < 3; row++)
+            {
+                for (int col = 0; col < 3; col++)
+                {
+                    if (grid[row + boxStartRow, col + boxStartCol] == num)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        static void PrintGrid()
+        {
+            for (int i = 0; i < 9; i++)
+            {
+                for (int j = 0; j < 9; j++)
+                {
+                    Console.Write(grid[i, j] + " ");
+                }
+                Console.WriteLine();
+            }
+        }
+    }
+}
